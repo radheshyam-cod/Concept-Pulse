@@ -1,0 +1,20 @@
+{
+  "name": "ConceptPulse MVP",
+  "description": "Educational platform with integrated Kiro IDE services for planning, prototyping, documentation, workflows and execution",
+  "version": "1.0.0",
+  "features": {
+    "planning": true,
+    "prototyping": true,
+    "documentation": true,
+    "workflows": true,
+    "execution": true,
+    "collaboration": true
+  },
+  "integrations": {
+    "supabase": true,
+    "figma": true,
+    "react": true,
+    "typescript": true,
+    "tailwind": true
+  }
+}

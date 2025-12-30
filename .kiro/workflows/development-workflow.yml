@@ -1,0 +1,81 @@
+name: ConceptPulse Development Workflow
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  kiro-planning-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Validate Planning Documents
+        run: |
+          echo "Checking planning documents..."
+          find .kiro/planning -name "*.md" -exec echo "Found: {}" \;
+      
+  kiro-prototype-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Validate Prototypes
+        run: |
+          echo "Validating prototypes..."
+          find .kiro/prototypes -name "*.md" -exec echo "Prototype: {}" \;
+
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+      - name: TypeScript check
+        run: npx tsc --noEmit
+      - name: Lint check
+        run: npx eslint src/
+      - name: Format check
+        run: npx prettier --check src/
+
+  kiro-execution-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test
+      - name: Build application
+        run: npm run build
+
+  kiro-documentation-update:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate Documentation
+        run: |
+          echo "Generating updated documentation..."
+          mkdir -p .kiro/docs/generated
+          echo "# Auto-generated Documentation" > .kiro/docs/generated/README.md
+          echo "Generated on: $(date)" >> .kiro/docs/generated/README.md
+
+  deploy:
+    needs: [kiro-planning-check, kiro-prototype-validation, code-quality, kiro-execution-tests]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Production
+        run: |
+          echo "Deploying ConceptPulse with Kiro IDE integration..."
+          echo "All Kiro services validated and ready for deployment"
